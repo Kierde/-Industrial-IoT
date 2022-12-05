@@ -1,0 +1,12 @@
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\bin\Debug\net6.0\AzureDeviceSdk.Device.deps.json
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\bin\Debug\net6.0\AzureDeviceSdk.Device.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\bin\Debug\net6.0\AzureDeviceSdk.Device.pdb
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.csproj.AssemblyReference.cache
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.GeneratedMSBuildEditorConfig.editorconfig
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.AssemblyInfoInputs.cache
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.AssemblyInfo.cs
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.csproj.CoreCompileInputs.cache
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\refint\AzureDeviceSdk.Device.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.pdb
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\ref\AzureDeviceSdk.Device.dll
