@@ -20,24 +20,33 @@ internal class Program
                 client.Connect();
                 var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
                 findMachinesId(node, listOfIdMachine);
-                client.Disconnect();
+
+                using var deviceClient = DeviceClient.CreateFromConnectionString(Resources.connectionString, TransportType.Mqtt);
+                await deviceClient.OpenAsync();
+                var device = new VirtualDevice(deviceClient);
+
+                //Task[] tasks = new Task[2];
+                Task[] tasks = new Task[listOfIdMachine.Count-1];
+
+                while (true)
+                {
+                    for (int i = 0; i < listOfIdMachine.Count - 1; i++) 
+                    {
+                        tasks[i]= threadMachineMethod(listOfIdMachine[i+1], client, device);
+                    }
+                    await Task.WhenAll(tasks);
+                    // tasks[0] = threadMachineMethod(listOfIdMachine[1],client, device);
+                    //tasks[1] = threadMachineMethod(listOfIdMachine[2],client, device);
+                    //await Task.WhenAll(tasks);
+                }
+
+
             }
 
-            var task1 = threadMachineMethod(listOfIdMachine[1]);
-            var task2 = threadMachineMethod(listOfIdMachine[2]);
-            await Task.WhenAll(task1, task2); 
+            
+          
 
-           
-
-
-
-               
-
-/*
-            for(int i=1; i<listOfIdMachine.Count-1;i++)
-                await Task.Run(() => threadMachineMethod(listOfIdMachine[i]));*/
-            //await threadMachineMethod(listOfIdMachine[1]);
-
+          
 
 
         }
@@ -76,43 +85,18 @@ internal class Program
             return commands;
         }
 
-        async Task threadMachineMethod(string idMachine)
-        {
-            try
-            {
-                using var deviceClient = DeviceClient.CreateFromConnectionString(Resources.connectionString, TransportType.Mqtt);
-                await deviceClient.OpenAsync();
-                var device = new VirtualDevice(deviceClient);
+        async Task threadMachineMethod(string idMachine, OpcClient client, VirtualDevice device)
+        { 
                 Console.WriteLine("Connection success with {0}", idMachine);
-
-                try
-                {
-                    using (var client = new OpcClient("opc.tcp://localhost:4840"))
-                    {
-                        client.Connect();
-                        while (true)
-                        {
-                            OpcValue[] telemetryValues = new OpcValue[5];
-                            //odczytywanie wartosci telemetrycznych - production status, workorderId, good, bad, temp 
-                            telemetryValues[0] = client.ReadNode(idMachine + "/ProductionStatus");
-                            telemetryValues[1] = client.ReadNode(idMachine + "/WorkorderId");
-                            telemetryValues[2] = client.ReadNode(idMachine + "/GoodCount");
-                            telemetryValues[3] = client.ReadNode(idMachine + "/BadCount");
-                            telemetryValues[4] = client.ReadNode(idMachine + "/Temperature");
-                            //test - sending values 
-                            await device.sendTelemetryValues(telemetryValues, idMachine);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Wiadomość błędu: " + e.Message);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Connection failed!" + e.Message);
-            }
+                OpcValue[] telemetryValues = new OpcValue[5];
+              //odczytywanie wartosci telemetrycznych - production status, workorderId, good, bad, temp 
+                telemetryValues[0] = client.ReadNode(idMachine + "/ProductionStatus");
+                telemetryValues[1] = client.ReadNode(idMachine + "/WorkorderId");
+                telemetryValues[2] = client.ReadNode(idMachine + "/GoodCount");
+                telemetryValues[3] = client.ReadNode(idMachine + "/BadCount");
+                telemetryValues[4] = client.ReadNode(idMachine + "/Temperature");
+            //test - sending values 
+            await device.sendTelemetryValues(telemetryValues, idMachine); 
         }
     }
 }
