@@ -36,7 +36,6 @@ namespace AzureDeviceSdk.Device
           
             await client.SendEventAsync(eventMessage);
             Console.WriteLine("Wiadomosc wyslana z maszyny o numerze ID: {0}", machineId);
-
             await Task.Delay(2000); 
         }
 
