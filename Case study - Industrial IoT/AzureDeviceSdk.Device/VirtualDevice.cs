@@ -4,6 +4,7 @@ using Opc.UaFx;
 using System.Net.Mime;
 using System.Text;
 using static Org.BouncyCastle.Math.EC.ECCurve;
+using System.Threading.Tasks; 
 
 namespace AzureDeviceSdk.Device
 {
@@ -19,7 +20,7 @@ namespace AzureDeviceSdk.Device
 
         public async Task sendTelemetryValues(OpcValue[] telemetryValues,string machineId)
         {
-
+          
             var data = new
             {
                 production_status = telemetryValues[0].Value,
@@ -33,10 +34,8 @@ namespace AzureDeviceSdk.Device
             Message eventMessage = new Message(Encoding.UTF8.GetBytes(dataString));
             eventMessage.ContentType = MediaTypeNames.Application.Json;
             eventMessage.ContentEncoding = "utf-8";
-          
-            await client.SendEventAsync(eventMessage);
-            Console.WriteLine("Wiadomosc wyslana z maszyny o numerze ID: {0}", machineId);
-            await Task.Delay(2000); 
+            client.SendEventAsync(eventMessage);
+            Console.WriteLine($"\t{DateTime.Now.ToLocalTime()} z maszyny {machineId}");
         }
 
 

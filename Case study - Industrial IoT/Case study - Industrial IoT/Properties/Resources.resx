@@ -120,4 +120,7 @@
   <data name="connectionString" xml:space="preserve">
     <value>HostName=IOT-TEMP.azure-devices.net;DeviceId=iot-projekt;SharedAccessKey=2NXcYQ61yE4NpRGtPz72yLtUEWAJ0tFtb4U8VeqijP4=</value>
   </data>
+  <data name="connectionString2" xml:space="preserve">
+    <value>HostName=iot2hub.azure-devices.net;DeviceId=testowe;SharedAccessKey=jsIqIf1koTaqIWcQBkxy8Has/MPAgptn0j0LacnCtjc=</value>
+  </data>
 </root>

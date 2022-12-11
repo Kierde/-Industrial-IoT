@@ -68,5 +68,14 @@ namespace Case_study___Industrial_IoT.Properties {
                 return ResourceManager.GetString("connectionString", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HostName=iot2hub.azure-devices.net;DeviceId=testowe;SharedAccessKey=jsIqIf1koTaqIWcQBkxy8Has/MPAgptn0j0LacnCtjc=.
+        /// </summary>
+        internal static string connectionString2 {
+            get {
+                return ResourceManager.GetString("connectionString2", resourceCulture);
+            }
+        }
     }
 }
