@@ -14,21 +14,26 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-            List<string> listOfIdMachine = new List<string>();
-            //otrzymywanie listy aktywnych maszyn 
-            using (var client = new OpcClient("opc.tcp://localhost:4840"))
-            {
-                client.Connect();
-                var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
-                findMachinesId(node, listOfIdMachine);
-                client.Disconnect();
-            }
+        List<string> listOfIdMachine = new List<string>();
+
+        //otrzymywanie listy aktywnych maszyn 
+        using (var client = new OpcClient("opc.tcp://localhost:4840"))
+        {
+            client.Connect();
+            var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
+            VirtualDevice.findMachinesId(node, listOfIdMachine);
+            client.Disconnect();
+        }
+       
 
         //przesyłanie wartości telemetrycznych z wszystkich maszyn równolegle do IoTHuba
-        Task[] connectionTask = new Task[listOfIdMachine.Count - 1];
-        VirtualDevice[] devices = new VirtualDevice[listOfIdMachine.Count - 1];
-        DeviceClient[] deviceClients = new DeviceClient[listOfIdMachine.Count - 1];
+      
         OpcClient[] opcClients = new OpcClient[listOfIdMachine.Count - 1];
+        DeviceClient[] deviceClients = new DeviceClient[listOfIdMachine.Count - 1];
+        VirtualDevice[] devices = new VirtualDevice[listOfIdMachine.Count - 1];
+        Task[] connectionTask = new Task[listOfIdMachine.Count - 1];
+        Task[] initTask = new Task[listOfIdMachine.Count - 1];
+
 
         //try catch - do zrobienia 
         for (int j = 0; j < listOfIdMachine.Count - 1; j++)  
@@ -37,8 +42,11 @@ internal class Program
             deviceClients[j] = DeviceClient.CreateFromConnectionString(Resources.connectionString, TransportType.Mqtt);
             connectionTask[j] = deviceClients[j].OpenAsync();
             devices[j] = new VirtualDevice(deviceClients[j]);
+            initTask[j] = devices[j].InitializeHandlers(); 
         }
         await Task.WhenAll(connectionTask);
+        await Task.WhenAll(initTask);
+       
 
         Console.WriteLine("Połączenia udane");
         await Task.Delay(2500);
@@ -54,19 +62,6 @@ internal class Program
              await Task.WhenAll(tasks);
          
             await Task.Delay(5000);
-        }
-
-        static void findMachinesId(OpcNodeInfo node, List<string> listOfIdMachine, int level = 0)
-        {
-            if (level == 1)
-            {
-                listOfIdMachine.Add(node.NodeId.ToString());
-            }
-            level++;
-            foreach (var childNode in node.Children())
-            {
-                findMachinesId(childNode, listOfIdMachine, level);
-            }
         }
 
         async Task taskMachineMethod(string idMachine, OpcClient client, VirtualDevice device)
@@ -86,4 +81,6 @@ internal class Program
 
 
     }
+
+    
 }
