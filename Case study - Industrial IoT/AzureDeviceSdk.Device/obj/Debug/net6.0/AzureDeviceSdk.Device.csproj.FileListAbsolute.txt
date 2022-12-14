@@ -10,3 +10,6 @@ D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Azur
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\refint\AzureDeviceSdk.Device.dll
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.pdb
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\ref\AzureDeviceSdk.Device.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\bin\Debug\net6.0\DeserializationSupport.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\bin\Debug\net6.0\DeserializationSupport.pdb
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\AzureDeviceSdk.Device\obj\Debug\net6.0\AzureDeviceSdk.Device.csproj.CopyComplete

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "LXbzEQRueN0ujTPOaPPHxt1jcYGe0zKSjrrQ3kQD5ic+mWjBXZDQXC+KDJ1RY5JcwV2v0fqFr3G+t6hQo7PWkw==",
+  "success": true,
+  "projectFilePath": "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\DeserializationSupport.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Kamil\\.nuget\\packages\\newtonsoft.json\\13.0.2\\newtonsoft.json.13.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

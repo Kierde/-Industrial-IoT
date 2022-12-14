@@ -1,0 +1,12 @@
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.csproj.AssemblyReference.cache
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.GeneratedMSBuildEditorConfig.editorconfig
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.AssemblyInfoInputs.cache
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.AssemblyInfo.cs
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.csproj.CoreCompileInputs.cache
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\bin\Debug\net6.0\DeserializationSupport.deps.json
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\bin\Debug\net6.0\DeserializationSupport.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\bin\Debug\net6.0\DeserializationSupport.pdb
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\refint\DeserializationSupport.dll
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\DeserializationSupport.pdb
+D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\DeserializationSupport\obj\Debug\net6.0\ref\DeserializationSupport.dll

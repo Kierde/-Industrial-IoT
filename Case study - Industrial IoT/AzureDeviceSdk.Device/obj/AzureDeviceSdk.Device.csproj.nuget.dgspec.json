@@ -27,6 +27,79 @@
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
+            "projectReferences": {
+              "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\DeserializationSupport.csproj": {
+                "projectPath": "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\DeserializationSupport.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.Azure.Devices": {
+              "target": "Package",
+              "version": "[1.38.2, )"
+            },
+            "Microsoft.Azure.Devices.Client": {
+              "target": "Package",
+              "version": "[1.41.3, )"
+            },
+            "Opc.UaFx.Client": {
+              "target": "Package",
+              "version": "[2.29.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\DeserializationSupport.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\DeserializationSupport.csproj",
+        "projectName": "DeserializationSupport",
+        "projectPath": "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\DeserializationSupport.csproj",
+        "packagesPath": "C:\\Users\\Kamil\\.nuget\\packages\\",
+        "outputPath": "D:\\Users\\Kamil\\Informatyka\\sem3\\IoT (u)\\projekt\\case study - industrial IoT\\DeserializationSupport\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Kamil\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
             "projectReferences": {}
           }
         },
@@ -40,13 +113,9 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
-            "Microsoft.Azure.Devices.Client": {
+            "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[1.41.3, )"
-            },
-            "Opc.UaFx.Client": {
-              "target": "Package",
-              "version": "[2.29.0, )"
+              "version": "[13.0.2, )"
             }
           },
           "imports": [
