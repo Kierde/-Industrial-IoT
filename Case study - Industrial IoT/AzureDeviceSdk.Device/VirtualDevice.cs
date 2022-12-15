@@ -6,7 +6,6 @@ using System.Text;
 using Opc.UaFx.Client;
 using DeserializationClasses;
 using Microsoft.Azure.Devices.Shared;
-using Microsoft.VisualBasic;
 
 namespace AzureDeviceSdk.Device
 {
@@ -19,27 +18,20 @@ namespace AzureDeviceSdk.Device
             this.client = client; 
         }
 
-        public async Task sendTelemetryValues(OpcValue[] telemetryValues,string machineId)
+        public async Task sendTelemetryValues(List<string> messages)
         {
-
-            var data = new
+            foreach (var message in messages)
             {
-                production_status = telemetryValues[0].Value,
-                workorder_id = telemetryValues[1].Value,
-                good_count = telemetryValues[2].Value,
-                bad_count = telemetryValues[3].Value,
-                temperature = telemetryValues[4].Value
-            };
-            var dataString = JsonConvert.SerializeObject(data);
-            Message eventMessage = new Message(Encoding.UTF8.GetBytes(dataString));
-            eventMessage.ContentType = MediaTypeNames.Application.Json;
-            eventMessage.ContentEncoding = "utf-8";
-            Console.WriteLine($"Wysyłanie waidomości {DateTime.Now.ToLocalTime()} do maszyny {machineId}");
-            await client.SendEventAsync(eventMessage);
-           // Console.WriteLine($"\t{DateTime.Now.ToLocalTime()} z maszyny {machineId}");
-
+                Message eventMessage = new Message(Encoding.UTF8.GetBytes(message));
+                eventMessage.ContentType = MediaTypeNames.Application.Json;
+                eventMessage.ContentEncoding = "utf-8";
+                Console.WriteLine($"\t{DateTime.Now.ToLocalTime()}> Sending message: {message}");
+                await client.SendEventAsync(eventMessage);
+                await Task.Delay(500);
+            }
         }
 
+        //Direct methods 
         private async Task<MethodResponse> DefaultServiceHandler(MethodRequest methodRequest, object userContext)
         {
             Console.WriteLine("Metoda o nazwie:\"{0}\"nie istnieje",methodRequest.Name);
@@ -47,54 +39,34 @@ namespace AzureDeviceSdk.Device
             return new MethodResponse(0);
         }
 
-        //Direct methods 
         private async Task<MethodResponse> EmergencyStop(MethodRequest methodRequest, object userContext)
         {
             var twin = await client.GetTwinAsync();
-            string jsonStr = JsonConvert.SerializeObject(twin);
-            Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonStr);
-            Console.WriteLine($"\tMETHOD EXECUTED: {methodRequest.Name}");
+            Console.WriteLine($"\tZostała wywołana metoda o nazwie:{methodRequest.Name}");
             var opcClient = new OpcClient("opc.tcp://localhost:4840");
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder); 
-            List<string> listOfIdMachine = new List<string>();
-            findMachinesId(node,listOfIdMachine);
+            List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
+            findMachinesId(node, teleMachineVales);
             var payload = JsonConvert.DeserializeAnonymousType(methodRequest.DataAsJson, new { numberOfMachine = default(int) });
             object[] result;
-            var reportedProperties = new TwinCollection();
-            string[] deviceErrorsFlag = new string[myDeserializedClass.properties.reported.DevicesErrors.Count];
-
-            int j = 0;
-            foreach (string val in myDeserializedClass.properties.reported.DevicesErrors)
-            {
-                deviceErrorsFlag[j++] = val;
-            }
 
             if (payload != null)
             {
                 result = opcClient.CallMethod(
-                listOfIdMachine[payload.numberOfMachine],
-                listOfIdMachine[payload.numberOfMachine] + "/EmergencyStop");
-
-                deviceErrorsFlag[payload.numberOfMachine - 1] = "0001";
-                reportedProperties["DevicesErrors"] = deviceErrorsFlag;
-                await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-                Console.WriteLine("Maszyna o id:{0} została awaryjnie zatrzymana", listOfIdMachine[payload.numberOfMachine]);
+                teleMachineVales[payload.numberOfMachine-1].id_Of_Machine,
+                teleMachineVales[payload.numberOfMachine-1].id_Of_Machine + "/EmergencyStop");
+                Console.WriteLine("Maszyna o id:{0} została awaryjnie zatrzymana", teleMachineVales[payload.numberOfMachine-1].id_Of_Machine);
             }
-            else 
+            else
             {
-                for (int i = 0; i < listOfIdMachine.Count - 1; i++)
+                for (int i = 0; i < teleMachineVales.Count; i++)
                 {
                     result = opcClient.CallMethod(
-                    listOfIdMachine[i + 1],
-                    listOfIdMachine[i + 1] + "/EmergencyStop");
-                    deviceErrorsFlag[i] = "0001";
+                    teleMachineVales[i].id_Of_Machine,
+                    teleMachineVales[i].id_Of_Machine + "/EmergencyStop");
                 }
-
-
-                reportedProperties["DevicesErrors"] = deviceErrorsFlag;
-                await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-                Console.WriteLine("Wszystkie maszyny zostały awaryjnie zatrzymane!");
+                Console.WriteLine("Wszystkie maszyny fabryki zostały awaryjnie zatrzymane!");
             }
             await Task.Delay(1000);
             return new MethodResponse(0);
@@ -104,161 +76,106 @@ namespace AzureDeviceSdk.Device
         {
             var twin = await client.GetTwinAsync();
             string jsonStr = JsonConvert.SerializeObject(twin);
-            Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonStr);
-
-
-            Console.WriteLine($"\tMETHOD EXECUTED: {methodRequest.Name}");
+            DewiceTwin myDeserializedClass = JsonConvert.DeserializeObject<DewiceTwin>(jsonStr);
+            Console.WriteLine($"\tZostała wywołana metoda o nazwie:: {methodRequest.Name}");
             var opcClient = new OpcClient("opc.tcp://localhost:4840");
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
-            List<string> listOfIdMachine = new List<string>();
-            findMachinesId(node, listOfIdMachine);
+            List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
+            findMachinesId(node, teleMachineVales);
             var payload = JsonConvert.DeserializeAnonymousType(methodRequest.DataAsJson, new { numberOfMachine = default(int) });
-
             var reportedProperties = new TwinCollection();
-
-            string[] dateOfMaintanace = new string[myDeserializedClass.properties.reported.DateOfLastMaintenance.Count];
-
-            int i = 0;
-            foreach (string val in myDeserializedClass.properties.reported.DateOfLastMaintenance)
-            {
-                dateOfMaintanace[i++] = val ;
-            }
-
+            List<string> dateOfLastMaintenance = myDeserializedClass.properties.reported.DateOfLastMaintenance;
 
             if (payload != null)
             {
-                Console.WriteLine("Wykonana została konserwacja maszyny o id:{0}", listOfIdMachine[payload.numberOfMachine]);
-                dateOfMaintanace[payload.numberOfMachine - 1] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
-                reportedProperties["DateOfLastMaintenance"] = dateOfMaintanace;
+                dateOfLastMaintenance[payload.numberOfMachine - 1] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
+                reportedProperties["DateOfLastMaintenance"] = dateOfLastMaintenance;
                 await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
+                Console.WriteLine("Wykonana została konserwacja maszyny o id:{0}", teleMachineVales[payload.numberOfMachine-1].id_Of_Machine);
             }
             else
             {
-                for (int j = 0; j < myDeserializedClass.properties.reported.DateOfLastMaintenance.Count; j++)
+                for (int i = 0; i < myDeserializedClass.properties.reported.DateOfLastMaintenance.Count; i++)
                 {
-                    dateOfMaintanace[j] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
+                    dateOfLastMaintenance[i] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
                 }
-                reportedProperties["DateOfLastMaintenance"] = dateOfMaintanace;
+                reportedProperties["DateOfLastMaintenance"] = dateOfLastMaintenance;
                 await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-                Console.WriteLine("Wykonana została konserwacja dla wszystkich maszyn fabryki!");
+                Console.WriteLine("Wykonana została konserwacja dla wszystkich maszyn fabryki");
             }
             await Task.Delay(1000);
-           
             return new MethodResponse(0);
         }
 
 
-
-      
         private async Task<MethodResponse> ResetErrorStatus(MethodRequest methodRequest, object userContext)
         {
-            var twin = await client.GetTwinAsync();
-            string jsonStr = JsonConvert.SerializeObject(twin);
-            Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonStr);
-            Console.WriteLine($"\tMETHOD EXECUTED: {methodRequest.Name}");
+            Console.WriteLine($"\tZostała wywołana metoda o nazwie: {methodRequest.Name}");
             var opcClient = new OpcClient("opc.tcp://localhost:4840");
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
-            List<string> listOfIdMachine = new List<string>();
-            findMachinesId(node, listOfIdMachine);
+            List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
+            findMachinesId(node, teleMachineVales);
             var payload = JsonConvert.DeserializeAnonymousType(methodRequest.DataAsJson, new { numberOfMachine = default(int)});
             object[] result;
-            var reportedProperties = new TwinCollection();
-            string[] deviceErrorsFlag = new string[myDeserializedClass.properties.reported.DevicesErrors.Count];
-
-            int j = 0; 
-            foreach (string val in myDeserializedClass.properties.reported.DevicesErrors)
-            {
-                deviceErrorsFlag[j++] = val;
-            }
-
+           
             if (payload!= null)
             {
                 result = opcClient.CallMethod(
-                    listOfIdMachine[payload.numberOfMachine],
-                    listOfIdMachine[payload.numberOfMachine] + "/ResetErrorStatus");
-                deviceErrorsFlag[payload.numberOfMachine - 1] = "0000";
-                reportedProperties["DevicesErrors"] = deviceErrorsFlag;
-                await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-                Console.WriteLine("Flagi błędów zostały zresetowane dla maszyny o id:{0}", listOfIdMachine[payload.numberOfMachine]); 
+                    teleMachineVales[payload.numberOfMachine-1].id_Of_Machine,
+                    teleMachineVales[payload.numberOfMachine-1].id_Of_Machine + "/ResetErrorStatus");
+                Console.WriteLine("Flagi błędów zostały zresetowane dla maszyny o id:{0}", teleMachineVales[payload.numberOfMachine-1]); 
             }
             else
             {
-                for (int i = 0; i < listOfIdMachine.Count-1; i++)
+                for (int i = 0; i < teleMachineVales.Count; i++)
                 {
                     result = opcClient.CallMethod(
-                    listOfIdMachine[i + 1],
-                    listOfIdMachine[i + 1] + "/ResetErrorStatus");
-                    deviceErrorsFlag[i] = "0000";
+                    teleMachineVales[i].id_Of_Machine,
+                    teleMachineVales[i].id_Of_Machine + "/ResetErrorStatus");
                 }
-                reportedProperties["DevicesErrors"] = deviceErrorsFlag;
-                await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
                 Console.WriteLine("Flagi błędów zostały zresetowane dla wszystkich maszyn fabryki!");
             }
             await Task.Delay(1000);
             return new MethodResponse(0);
         }
-
-        //odczytanie wszystkich aktywnych maszyn 
-        public static void findMachinesId(OpcNodeInfo node, List<string> listOfIdMachine, int level = 0)
-        {
-            if (level == 1)
-            {
-                listOfIdMachine.Add(node.NodeId.ToString());
-            }
-            level++;
-            foreach (var childNode in node.Children())
-            {
-                findMachinesId(childNode, listOfIdMachine, level);
-            }
-        }
-
-
+       
         //Device Twin 
         public async Task presetDeviceTwinForUsage()
         {
-            var twin = await client.GetTwinAsync();
-
+            Devi twin = await client.GetTwinAsync();
             var opcClient = new OpcClient("opc.tcp://localhost:4840");
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
-            List<string> listOfIdMachine = new List<string>();
-            findMachinesId(node, listOfIdMachine);
+            List<TeleValueMachine> listTeleValuesMachines = new List<TeleValueMachine>();
+            string jsonStr = JsonConvert.SerializeObject(twin);
 
-            // Console.WriteLine($"\nInitial twin value received: \n{JsonConvert.SerializeObject(twin, Formatting.Indented)}");
-            // Console.WriteLine();
-           string jsonStr = JsonConvert.SerializeObject(twin);
-           Console.WriteLine(jsonStr);
-           Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonStr);
+
+            Console.WriteLine(jsonStr);
+            DewiceTwin myDeserializedClass = JsonConvert.DeserializeObject<DewiceTwin>(jsonStr);
             
             var reportedProperties = new TwinCollection();
-            var desiredProperties = new TwinCollection(); 
-
-            string[] errorStatus = new string[listOfIdMachine.Count - 1];
-            string[] dateOfLastMaintenance = new string[listOfIdMachine.Count - 1];
-            int[] productionRate = new int[listOfIdMachine.Count - 1];
-
          
 
-            for (int i = 0; i < listOfIdMachine.Count - 1; i++)
+            string[] errorStatus = new string[listTeleValuesMachines.Count - 1];
+            string[] dateOfLastMaintenance = new string[listTeleValuesMachines.Count - 1];
+            int[] productionRate = new int[listTeleValuesMachines.Count - 1];
+
+            for (int i = 0; i < listTeleValuesMachines.Count; i++)
             {
                 errorStatus[i] = "0000";
-                dateOfLastMaintenance[i] = "brak informacji";
+                dateOfLastMaintenance[i] = "brak informacji o ostatnim o przeglądzie maszyny";
                 productionRate[i] = 100;
-                OpcStatus productionRateOpc = opcClient.WriteNode(listOfIdMachine[i + 1] + "/ProductionRate", 100);
+                OpcStatus productionRateOpc = opcClient.WriteNode(listTeleValuesMachines[i + 1] + "/ProductionRate", 100);
             }
+
             opcClient.Disconnect(); 
             reportedProperties["DevicesErrors"] = errorStatus;
             reportedProperties["DateOfLastMaintenance"] = dateOfLastMaintenance;
             reportedProperties["ProductionRate"] = productionRate;
-           
-
-            
             await client.UpdateReportedPropertiesAsync(reportedProperties);
             Console.WriteLine("Desired i reported twin zostały przygotowane");
-            
-            client.Dispose();
         }
 
         private async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
@@ -266,16 +183,15 @@ namespace AzureDeviceSdk.Device
             var opcClient = new OpcClient("opc.tcp://localhost:4840");
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
-            List<string> listOfIdMachine = new List<string>();
-            findMachinesId(node, listOfIdMachine);
+            List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
+            findMachinesId(node, teleMachineVales);
 
             Console.WriteLine($"\tDesired property change:\n\t{JsonConvert.SerializeObject(desiredProperties)}");
-           
             TwinCollection reportedProperties = new TwinCollection();
 
             var twin = await client.GetTwinAsync();
             string jsonStr = JsonConvert.SerializeObject(twin);
-            Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonStr);
+            DewiceTwin myDeserializedClass = JsonConvert.DeserializeObject<DewiceTwin>(jsonStr);
 
 
             int[] reportedProductionRate = new int[myDeserializedClass.properties.desired.ProductionRate.Count];
@@ -284,7 +200,7 @@ namespace AzureDeviceSdk.Device
             foreach (var value in myDeserializedClass.properties.desired.ProductionRate)
             {
                 reportedProductionRate[i] = value;
-                OpcStatus productionRateOpc = opcClient.WriteNode(listOfIdMachine[i + 1] + "/ProductionRate", value);
+                OpcStatus productionRateOpc = opcClient.WriteNode(teleMachineVales[i] + "/ProductionRate", value);
                 i ++;
             }
 
@@ -296,7 +212,6 @@ namespace AzureDeviceSdk.Device
         }
 
 
-
         public async Task InitializeHandlers()
         {
             await client.SetMethodDefaultHandlerAsync(DefaultServiceHandler, client);
@@ -304,6 +219,24 @@ namespace AzureDeviceSdk.Device
             await client.SetMethodHandlerAsync("ResetErrorStatus", ResetErrorStatus, client);
             await client.SetMethodHandlerAsync("MaintenanceDone", MaintenanceDone, client);
             await client.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, client);
+        }
+
+
+        //odczytanie id wszystkich aktywnych maszyn 
+        public static void findMachinesId(OpcNodeInfo node, List<TeleValueMachine> teleValuesMachines, int level = 0)
+        {
+            if (level == 1 && node.NodeId.ToString().Contains("Device"))
+            {
+                teleValuesMachines.Add(new TeleValueMachine
+                {
+                    id_Of_Machine = node.NodeId.ToString()
+                });
+            }
+            level++;
+            foreach (var childNode in node.Children())
+            {
+                findMachinesId(childNode, teleValuesMachines, level);
+            }
         }
     }
 }

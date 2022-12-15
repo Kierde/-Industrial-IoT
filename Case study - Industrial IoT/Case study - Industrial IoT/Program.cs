@@ -1,108 +1,66 @@
-﻿using Opc.Ua;
-using Opc.UaFx;
-using Opc.UaFx.Client;
-using Microsoft.Azure.Devices.Client;
-using AzureDeviceSdk.Device;
-using Microsoft.Azure.Devices.Client.Exceptions;
+﻿using AzureDeviceSdk.Device;
 using Case_study___Industrial_IoT.Properties;
-using System.ComponentModel;
-using Microsoft.Extensions.Logging.Abstractions;
-using Org.BouncyCastle.Ocsp;
-using System.Threading.Tasks;
-using System.Reflection.PortableExecutable;
+using Microsoft.Azure.Devices.Client;
+using Opc.UaFx.Client;
+using Opc.UaFx;
+using Newtonsoft.Json;
+using DeserializationClasses;
 
 
-internal class Program
+List<TeleValueMachine> teleValuesMachines = new List<TeleValueMachine>();
+
+try
 {
-    private static async Task Main(string[] args)
+    using (var client = new OpcClient("opc.tcp://localhost:4840"))
     {
-
-       
-
-        List<string> listOfIdMachine = new List<string>();
-
-        //otrzymywanie listy aktywnych maszyn 
-        var client = new OpcClient("opc.tcp://localhost:4840");
-        
-            client.Connect();
-            var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
-            VirtualDevice.findMachinesId(node, listOfIdMachine);
-            client.Disconnect();
-        
-       
-        //przesyłanie wartości telemetrycznych z wszystkich maszyn równolegle do IoTHuba
-      
-        OpcClient[] opcClients = new OpcClient[listOfIdMachine.Count - 1];
-        DeviceClient[] deviceClients = new DeviceClient[listOfIdMachine.Count - 1];
-        VirtualDevice[] devices = new VirtualDevice[listOfIdMachine.Count - 1];
-        Task[] connectionTask = new Task[listOfIdMachine.Count - 1];
-        Task[] initTask = new Task[listOfIdMachine.Count - 1];
-
-        
-        //try catch - do zrobienia 
-        for (int j = 0; j < listOfIdMachine.Count - 1; j++)  
-        {
-            opcClients[j] = new OpcClient("opc.tcp://localhost:4840");
-            deviceClients[j] = DeviceClient.CreateFromConnectionString(Resources.connectionString, TransportType.Mqtt);
-            connectionTask[j] = deviceClients[j].OpenAsync();
-            devices[j] = new VirtualDevice(deviceClients[j]);
-            initTask[j] = devices[j].InitializeHandlers(); 
-        }
-        await Task.WhenAll(connectionTask);
-        await Task.Delay(1000);
+        client.Connect();
+        var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
+        VirtualDevice.findMachinesId(node, teleValuesMachines);
+        using var deviceClient = DeviceClient.CreateFromConnectionString(Resources.connectionString,TransportType.Mqtt);
+        await deviceClient.OpenAsync();
+        var device = new VirtualDevice(deviceClient);
         Console.WriteLine("Połączenia udane");
-        await Task.WhenAll(initTask);
-        await Task.Delay(1000);
-        
-        Console.WriteLine("Inicjalizacja się powiodła");
-        
-
-        var deviceClientPre = DeviceClient.CreateFromConnectionString(Resources.connectionString, TransportType.Mqtt);
-        var connectionTPre = deviceClientPre.OpenAsync();
-        var devicesPre = new VirtualDevice(deviceClientPre);
-        await devicesPre.presetDeviceTwinForUsage(); 
+        await device.InitializeHandlers();
+        Console.WriteLine("Inicjalizacja udana");
 
 
-
-        
-        await Task.Delay(2500);
-
-        Task[] tasks = new Task[listOfIdMachine.Count - 1];
-
-        var parllelOpition = new ParallelOptions { MaxDegreeOfParallelism =listOfIdMachine.Count-1};
-
-
-        // for (int j = 0; j < 2; j++)*/
         while (true)
         {
-            for (int i = 0; i < listOfIdMachine.Count - 1; i++)
-            {
-            
-                //tasks[i] = taskMachineMethod(listOfIdMachine[i + 1], opcClients[i], devices[i]);
-            }
-           //  await Task.WhenAll(tasks);
-
-            await Task.Delay(5000);
+            readTeleValues(teleValuesMachines, client);
+            await device.sendTelemetryValues(prepData(teleValuesMachines));
+            await Task.Delay(4000);
+           
         }
-
-        async Task taskMachineMethod(string idMachine, OpcClient client, VirtualDevice device)
-        {  
-               // Console.WriteLine("Connection success with {0}", idMachine);
-                OpcValue[] telemetryValues = new OpcValue[5];
-                client.Connect();
-            //odczytywanie wartosci telemetrycznych - production status, workorderId, good, bad, temperatura 
-                telemetryValues[0] = client.ReadNode(idMachine + "/ProductionStatus");
-                telemetryValues[1] = client.ReadNode(idMachine + "/WorkorderId");
-                telemetryValues[2] = client.ReadNode(idMachine + "/GoodCount");
-                telemetryValues[3] = client.ReadNode(idMachine + "/BadCount");
-                telemetryValues[4] = client.ReadNode(idMachine + "/Temperature");
-                client.Disconnect(); 
-                await device.sendTelemetryValues(telemetryValues, idMachine);
-                Console.WriteLine($"\t{DateTime.Now.ToLocalTime()} z maszyny {idMachine}");
-        }
+    }
+}
+catch (Exception e) 
+{
+    Console.WriteLine(e.Message); 
+}
 
 
+static void readTeleValues(List<TeleValueMachine> teleValueMachines, OpcClient client)
+{
+    client.Connect();
+    foreach(TeleValueMachine teleMachine in teleValueMachines)
+    {
+        teleMachine.production_status = (int) client.ReadNode(teleMachine.id_Of_Machine + "/ProductionStatus").Value;
+        teleMachine.workorder_id = (string)client.ReadNode(teleMachine.id_Of_Machine + "/WorkorderId").Value;
+        teleMachine.good_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/GoodCount").Value;
+        teleMachine.bad_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/BadCount").Value;
+        teleMachine.temperature = (double)client.ReadNode(teleMachine.id_Of_Machine + "/Temperature").Value;
+    }
+}
+
+static List<string> prepData(List<TeleValueMachine> teleValuesMachines)
+{
+    List<string> prepString = new List<string>();
+
+    foreach(TeleValueMachine machineTele in teleValuesMachines)
+    {
+        var jsonString = JsonConvert.SerializeObject(machineTele);
+        prepString.Add(jsonString); 
     }
 
-    
+    return prepString;
 }

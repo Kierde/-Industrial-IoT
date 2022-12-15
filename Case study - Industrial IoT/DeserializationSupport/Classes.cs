@@ -29,12 +29,23 @@ namespace DeserializationClasses
         public int version { get; set; }
     }
 
-    public class Root
+    public class DewiceTwin
     {
         public object deviceId { get; set; }
         public object etag { get; set; }
         public object version { get; set; }
         public Properties properties { get; set; }
+    }
+
+    public class TeleValueMachine
+    {
+        [JsonIgnore]
+        public string id_Of_Machine { get; set; }
+        public int production_status { get; set; }
+        public string workorder_id { get; set; }
+        public int good_count { get; set; }
+        public int bad_count { get; set; }
+        public double temperature { get; set; }
     }
 
 

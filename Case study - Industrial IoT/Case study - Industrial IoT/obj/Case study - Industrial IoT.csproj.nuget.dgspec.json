@@ -121,6 +121,10 @@
               "target": "Package",
               "version": "[1.41.3, )"
             },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.2, )"
+            },
             "Opc.UaFx.Client": {
               "target": "Package",
               "version": "[2.29.0, )"

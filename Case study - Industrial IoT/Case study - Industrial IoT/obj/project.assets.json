@@ -6496,6 +6496,7 @@
     "net6.0": [
       "AzureDeviceSdk.Device >= 1.0.0",
       "Microsoft.Azure.Devices.Client >= 1.41.3",
+      "Newtonsoft.Json >= 13.0.2",
       "Opc.UaFx.Client >= 2.29.0"
     ]
   },
@@ -6545,6 +6546,10 @@
           "Microsoft.Azure.Devices.Client": {
             "target": "Package",
             "version": "[1.41.3, )"
+          },
+          "Newtonsoft.Json": {
+            "target": "Package",
+            "version": "[13.0.2, )"
           },
           "Opc.UaFx.Client": {
             "target": "Package",
