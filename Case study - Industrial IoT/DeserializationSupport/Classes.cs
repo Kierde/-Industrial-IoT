@@ -24,12 +24,13 @@ namespace DeserializationClasses
         public List<int> ProductionRate { get; set; }
         public List<string> DevicesErrors { get; set; }
         public List<string> DateOfLastMaintenance { get; set; }
+        public List<string> LastErrorDate { get; set; }
 
         [JsonProperty("$version")]
         public int version { get; set; }
     }
 
-    public class DewiceTwin
+    public class DeviceTwin
     {
         public object deviceId { get; set; }
         public object etag { get; set; }
@@ -41,12 +42,33 @@ namespace DeserializationClasses
     {
         [JsonIgnore]
         public string id_Of_Machine { get; set; }
+
+        [JsonIgnore]
+        public int production_rate { get; set; }
+        [JsonIgnore]
+        public int device_error { get; set; }
+
         public int production_status { get; set; }
         public string workorder_id { get; set; }
         public int good_count { get; set; }
         public int bad_count { get; set; }
         public double temperature { get; set; }
     }
+
+    public class ErrorMessage
+    {
+        public ErrorMessage(string id_Of_Machine, int device_error)
+        {
+            this.id_Of_Machine = id_Of_Machine;
+            this.device_error = device_error;
+        }
+
+        public string id_Of_Machine { get; set; }
+        public int device_error { get; set; }
+    }
+
+
+
 
 
 }
