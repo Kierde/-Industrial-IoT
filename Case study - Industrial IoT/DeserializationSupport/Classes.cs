@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 namespace DeserializationClasses
 {
 
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Desired
     {
         public List<int> ProductionRate { get; set; }
@@ -67,7 +66,11 @@ namespace DeserializationClasses
         public int device_error { get; set; }
     }
 
-
+    public class ConfigJsonFile
+    {
+        public string iot_connection_string {get; set;}
+        public string opc_server_adress {get; set;}
+    }
 
 
 

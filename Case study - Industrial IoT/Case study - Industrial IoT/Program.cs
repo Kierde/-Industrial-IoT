@@ -1,5 +1,4 @@
 ﻿using AzureDeviceSdk.Device;
-using Case_study___Industrial_IoT.Properties;
 using Microsoft.Azure.Devices.Client;
 using Opc.UaFx.Client;
 using Opc.UaFx;
@@ -11,19 +10,20 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
+
+        ConfigJsonFile cofigFile= VirtualDevice.readConfigFile();
         List<TeleValueMachine> teleValuesMachines = new List<TeleValueMachine>();
         List<TeleValueMachine> oldTeleValues = new List<TeleValueMachine>();
-        List<TeleValueMachine> toReport = new List<TeleValueMachine>();
 
         try
         {
-            using (var client = new OpcClient("opc.tcp://localhost:4840"))
+            using (var client = new OpcClient(cofigFile.opc_server_adress))
             {
                 client.Connect();
                 var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
                 VirtualDevice.findMachinesId(node, teleValuesMachines);
                 VirtualDevice.findMachinesId(node, oldTeleValues);
-                using var deviceClient = DeviceClient.CreateFromConnectionString(Resources.connectionString, TransportType.Mqtt);
+                using var deviceClient = DeviceClient.CreateFromConnectionString(cofigFile.iot_connection_string, TransportType.Mqtt);
                 await deviceClient.OpenAsync();
                 var device = new VirtualDevice(deviceClient);
                 Console.WriteLine("Połączenia udane");
@@ -40,7 +40,6 @@ internal class Program
                    
                     await device.sendEventMessage(prepTelemetryMessage(teleValuesMachines));
                     await isValueChanged(oldTeleValues, teleValuesMachines, device);
-            
                     await Task.Delay(4000);
                 }
             }

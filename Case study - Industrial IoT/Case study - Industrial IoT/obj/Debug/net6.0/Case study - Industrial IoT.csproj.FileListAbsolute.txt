@@ -45,8 +45,6 @@ D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\bin\Debug\net6.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\bin\Debug\net6.0\AzureDeviceSdk.Device.dll
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\bin\Debug\net6.0\AzureDeviceSdk.Device.pdb
-D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\obj\Debug\net6.0\Case_study___Industrial_IoT.Properties.Resources.resources
-D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\obj\Debug\net6.0\Case study - Industrial IoT.csproj.GenerateResource.cache
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\bin\Debug\net6.0\DeserializationSupport.dll
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\bin\Debug\net6.0\DeserializationSupport.pdb
 D:\Users\Kamil\Informatyka\sem3\IoT (u)\projekt\case study - industrial IoT\Case study - Industrial IoT\bin\Debug\net6.0\Azure.Core.dll

@@ -6,8 +6,6 @@ using System.Text;
 using Opc.UaFx.Client;
 using DeserializationClasses;
 using Microsoft.Azure.Devices.Shared;
-using System.Reflection.PortableExecutable;
-using System;
 
 namespace AzureDeviceSdk.Device
 {
@@ -43,9 +41,11 @@ namespace AzureDeviceSdk.Device
 
         private async Task<MethodResponse> EmergencyStop(MethodRequest methodRequest, object userContext)
         {
+
+            ConfigJsonFile cofigFile = readConfigFile(); 
             var twin = await client.GetTwinAsync();
             Console.WriteLine($"\tZostała wywołana metoda o nazwie:{methodRequest.Name}");
-            var opcClient = new OpcClient("opc.tcp://localhost:4840");
+            var opcClient = new OpcClient(cofigFile.opc_server_adress);
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder); 
             List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
@@ -76,11 +76,12 @@ namespace AzureDeviceSdk.Device
 
         private async Task<MethodResponse> MaintenanceDone(MethodRequest methodRequest, object userContext)
         {
+            ConfigJsonFile cofigFile = readConfigFile();
             var twin = await client.GetTwinAsync();
             string jsonStr = JsonConvert.SerializeObject(twin);
             DeviceTwin myDeserializedClass = JsonConvert.DeserializeObject<DeviceTwin>(jsonStr);
             Console.WriteLine($"\tZostała wywołana metoda o nazwie:: {methodRequest.Name}");
-            var opcClient = new OpcClient("opc.tcp://localhost:4840");
+            var opcClient = new OpcClient(cofigFile.opc_server_adress);
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
             List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
@@ -112,8 +113,9 @@ namespace AzureDeviceSdk.Device
 
         private async Task<MethodResponse> ResetErrorStatus(MethodRequest methodRequest, object userContext)
         {
+            ConfigJsonFile cofigFile = readConfigFile();
             Console.WriteLine($"\tZostała wywołana metoda o nazwie: {methodRequest.Name}");
-            var opcClient = new OpcClient("opc.tcp://localhost:4840");
+            var opcClient = new OpcClient(cofigFile.opc_server_adress);
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
             List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
@@ -173,10 +175,11 @@ namespace AzureDeviceSdk.Device
 
         private async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object userContext)
         {
+            ConfigJsonFile cofigFile = readConfigFile();
             var twin = await client.GetTwinAsync();
             string jsonStr = JsonConvert.SerializeObject(twin);
             DeviceTwin myDeserializedClass = JsonConvert.DeserializeObject<DeviceTwin>(jsonStr);
-            var opcClient = new OpcClient("opc.tcp://localhost:4840");
+            var opcClient = new OpcClient(cofigFile.opc_server_adress);
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
             List<TeleValueMachine> teleMachineVales = new List<TeleValueMachine>();
@@ -276,6 +279,15 @@ namespace AzureDeviceSdk.Device
             {
                 findMachinesId(childNode, teleValuesMachines, level);
             }
+        }
+
+
+        public static ConfigJsonFile readConfigFile()
+        {
+            StreamReader r = new StreamReader("..\\..\\..\\..\\configurationFile.json");
+            string configFileContent = r.ReadToEnd();
+            ConfigJsonFile configJsonFIile = JsonConvert.DeserializeObject<ConfigJsonFile>(configFileContent);
+            return configJsonFIile; 
         }
     }
 }

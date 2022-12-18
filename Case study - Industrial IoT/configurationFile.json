@@ -1,0 +1,4 @@
+{
+	"iot_connection_string": "HostName=IOT-TEMP.azure-devices.net;DeviceId=iot-projekt;SharedAccessKey=2NXcYQ61yE4NpRGtPz72yLtUEWAJ0tFtb4U8VeqijP4=",
+	"opc_server_adress": "opc.tcp://localhost:4840"
+}

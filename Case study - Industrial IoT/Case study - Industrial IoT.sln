@@ -13,7 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureDeviceSdk.Device", "Az
 		{BC2E79C3-EAB8-496F-BDE6-D8EB023BBB02} = {BC2E79C3-EAB8-496F-BDE6-D8EB023BBB02}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeserializationSupport", "DeserializationSupport\DeserializationSupport.csproj", "{BC2E79C3-EAB8-496F-BDE6-D8EB023BBB02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeserializationSupport", "DeserializationSupport\DeserializationSupport.csproj", "{BC2E79C3-EAB8-496F-BDE6-D8EB023BBB02}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{50BAF534-1E81-4AD2-BE99-3357AC1776FE}"
+	ProjectSection(SolutionItems) = preProject
+		configurationFile.json = configurationFile.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
