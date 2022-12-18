@@ -255,11 +255,10 @@ namespace AzureDeviceSdk.Device
 
                 newLastErrorDate[numberOfMachine-1] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
             }
-
             reportedProperties["DevicesErrors"] = newErrorFlags;
             reportedProperties["LastErrorDate"] = newLastErrorDate;
             await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-            Console.WriteLine("reported twin updated - error flags and date of last error");
+            Console.WriteLine("reported twin updated - error flags i date of last error oraz wiadomosc o bledzie wyslana");
             await sendEventMessage(evenMessageError);
         }
 
@@ -284,6 +283,7 @@ namespace AzureDeviceSdk.Device
 
         public static ConfigJsonFile readConfigFile()
         {
+     
             StreamReader r = new StreamReader("..\\..\\..\\..\\configurationFile.json");
             string configFileContent = r.ReadToEnd();
             ConfigJsonFile configJsonFIile = JsonConvert.DeserializeObject<ConfigJsonFile>(configFileContent);

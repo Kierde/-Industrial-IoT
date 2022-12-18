@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 
 namespace DeserializationClasses
 {
-
     public class Desired
     {
         public List<int> ProductionRate { get; set; }

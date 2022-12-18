@@ -4,7 +4,8 @@ using Opc.UaFx.Client;
 using Opc.UaFx;
 using Newtonsoft.Json;
 using DeserializationClasses;
-
+using Opc.Ua;
+using System.Diagnostics.CodeAnalysis;
 
 internal class Program
 {
@@ -14,6 +15,8 @@ internal class Program
         ConfigJsonFile cofigFile= VirtualDevice.readConfigFile();
         List<TeleValueMachine> teleValuesMachines = new List<TeleValueMachine>();
         List<TeleValueMachine> oldTeleValues = new List<TeleValueMachine>();
+        List<List<int>> goodCount = new List<List<int>>();
+        List<List<int>> badCount = new List<List<int>>();
 
         try
         {
@@ -23,6 +26,15 @@ internal class Program
                 var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
                 VirtualDevice.findMachinesId(node, teleValuesMachines);
                 VirtualDevice.findMachinesId(node, oldTeleValues);
+
+                for(int k = 0; k < teleValuesMachines.Count; k++)
+                {
+                    List<int> good = new List<int>();
+                    List<int> bad = new List<int>();
+                    goodCount.Add(good);
+                    badCount.Add(bad); 
+                }
+
                 using var deviceClient = DeviceClient.CreateFromConnectionString(cofigFile.iot_connection_string, TransportType.Mqtt);
                 await deviceClient.OpenAsync();
                 var device = new VirtualDevice(deviceClient);
@@ -30,16 +42,19 @@ internal class Program
                 await device.InitializeHandlers();
                 Console.WriteLine("Inicjalizacja udana");
                 await device.presetDeviceTwinForUsage(client, teleValuesMachines);
-                readTeleValues(oldTeleValues, client);
+                readTeleValues(oldTeleValues, oldTeleValues,client, badCount,goodCount);
 
-
-
+                Console.WriteLine("Obecnie działające linie produkcyjne mają numery id:");
+                foreach (TeleValueMachine teleValueMachine in teleValuesMachines) 
+                {
+                    Console.WriteLine(teleValueMachine.id_Of_Machine); 
+                }
+                
                 while (true)
                 {
-                    readTeleValues(teleValuesMachines, client);
-                   
+                    readTeleValues(teleValuesMachines, oldTeleValues,client,badCount, goodCount);
                     await device.sendEventMessage(prepTelemetryMessage(teleValuesMachines));
-                    await isValueChanged(oldTeleValues, teleValuesMachines, device);
+                    await isValueChanged(oldTeleValues, teleValuesMachines, device,badCount,goodCount);
                     await Task.Delay(4000);
                 }
             }
@@ -50,23 +65,48 @@ internal class Program
         }
 
 
-        static void readTeleValues(List<TeleValueMachine> teleValueMachines, OpcClient client)
+        static void readTeleValues(List<TeleValueMachine> teleValueMachines,List<TeleValueMachine> old,OpcClient client, List<List<int>> badC, List<List<int>> goodC)
         {
-           
+            int i = 0;
+         
+
             foreach (TeleValueMachine teleMachine in teleValueMachines)
             {
-                teleMachine.production_status = (int)client.ReadNode(teleMachine.id_Of_Machine + "/ProductionStatus").Value;
                 teleMachine.workorder_id = (string)client.ReadNode(teleMachine.id_Of_Machine + "/WorkorderId").Value;
-                teleMachine.good_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/GoodCount").Value;
-                teleMachine.bad_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/BadCount").Value;
+                if (old[i].workorder_id != teleMachine.workorder_id && teleMachine.workorder_id != "00000000-0000-0000-0000-000000000000" && old[i].workorder_id!= "00000000-0000-0000-0000-000000000000")
+                {
+                    goodC[i].Add(teleMachine.good_count);
+                    badC[i].Add(teleMachine.bad_count);
+                    old[i] = teleMachine;
+                }
+           
+                int sumGood = 0;
+                int sumBad = 0;
+
+                if (badC.Count!=0 && badC[i].Count!=0)
+                foreach (int bad in badC[i])
+                {
+                    sumBad += bad;
+                }
+
+                if (badC.Count != 0 && badC[i].Count != 0)
+                foreach (int good in goodC[i])
+                {
+                    sumGood += good;
+                }
+
+                
+                teleMachine.production_status = (int)client.ReadNode(teleMachine.id_Of_Machine + "/ProductionStatus").Value;
+                teleMachine.good_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/GoodCount").Value - sumGood;
+                teleMachine.bad_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/BadCount").Value - sumBad;
                 teleMachine.temperature = (double)client.ReadNode(teleMachine.id_Of_Machine + "/Temperature").Value;
                 teleMachine.production_rate = (int)client.ReadNode(teleMachine.id_Of_Machine + "/ProductionRate").Value;
                 teleMachine.device_error = (int)client.ReadNode(teleMachine.id_Of_Machine + "/DeviceError").Value;
+                i++; 
             }
-
         }
 
-       async Task isValueChanged(List<TeleValueMachine> old, List<TeleValueMachine> now, VirtualDevice device)
+       async Task isValueChanged(List<TeleValueMachine> old, List<TeleValueMachine> now, VirtualDevice device, List<List<int>> badC, List<List<int>> goodC)
         {
             List<TeleValueMachine> toReport = new List<TeleValueMachine>();
             List<ErrorMessage> errorInfoToSend = new List<ErrorMessage>(); 
@@ -88,8 +128,8 @@ internal class Program
 
                     var errorMessage = new ErrorMessage(now[i].id_Of_Machine, now[i].device_error);
                     errorInfoToSend.Add(errorMessage);
-                  
                 }
+            
             }
             if(toReport.Count > 0 && flag==1)
                 await device.updateReportedProductionRate(toReport);
@@ -97,8 +137,6 @@ internal class Program
            if (toReport.Count > 0 && flag == 2)
                await device.updateReportedErrorsSendEvent(toReport,prepErrorMessage(errorInfoToSend));
         }
-
-
 
         static List<string> prepErrorMessage(List<ErrorMessage> errorMessages)
         {
@@ -111,8 +149,6 @@ internal class Program
             }
             return prepString;
         }
-
-
 
         static List<string> prepTelemetryMessage(List<TeleValueMachine> teleValuesMachines)
         {
