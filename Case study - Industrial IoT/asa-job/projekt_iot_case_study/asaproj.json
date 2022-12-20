@@ -1,0 +1,34 @@
+{
+    "name": "projekt_iot_case_study",
+    "startFile": "Transformation.asaql",
+    "configurations": [
+        {
+            "filePath": "JobConfig.json",
+            "subType": "JobConfig"
+        },
+        {
+            "filePath": "Outputs/out-case-study.json",
+            "subType": "Output"
+        },
+        {
+            "filePath": "Outputs/out-case-study2.json",
+            "subType": "Output"
+        },
+        {
+            "filePath": "Outputs/out-case-study3.json",
+            "subType": "Output"
+        },
+        {
+            "filePath": "Outputs/out-case-study4.json",
+            "subType": "Output"
+        },
+        {
+            "filePath": "Outputs/out-case-study5.json",
+            "subType": "Output"
+        },
+        {
+            "filePath": "Inputs/asa-case-study-industrial.json",
+            "subType": "Input"
+        }
+    ]
+}

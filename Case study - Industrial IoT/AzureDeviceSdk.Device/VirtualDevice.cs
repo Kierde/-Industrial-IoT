@@ -27,7 +27,7 @@ namespace AzureDeviceSdk.Device
                 eventMessage.ContentEncoding = "utf-8";
                 Console.WriteLine($"\t{DateTime.Now.ToLocalTime()}> Sending message: {message}");
                 await client.SendEventAsync(eventMessage);
-                await Task.Delay(500);
+                await Task.Delay(900);
             }
         }
 
@@ -258,7 +258,7 @@ namespace AzureDeviceSdk.Device
             reportedProperties["DevicesErrors"] = newErrorFlags;
             reportedProperties["LastErrorDate"] = newLastErrorDate;
             await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
-            Console.WriteLine("reported twin updated - error flags i date of last error oraz wiadomosc o bledzie wyslana");
+            Console.WriteLine("reported twin updated - error flags i date of last error oraz wiadomosc o błędzie została wyslana");
             await sendEventMessage(evenMessageError);
         }
 

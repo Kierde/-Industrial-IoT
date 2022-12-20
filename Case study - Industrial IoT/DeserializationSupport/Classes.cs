@@ -38,7 +38,6 @@ namespace DeserializationClasses
 
     public class TeleValueMachine
     {
-        [JsonIgnore]
         public string id_Of_Machine { get; set; }
 
         [JsonIgnore]

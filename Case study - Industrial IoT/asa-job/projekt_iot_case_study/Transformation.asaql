@@ -1,0 +1,58 @@
+--bad count and good count per workorderId
+SELECT
+    workorder_id,
+    good_count,
+    bad_count 
+INTO [out-case-study]
+FROM [asa-case-study-industrial]
+WHERE  NOT (workorder_id='00000000-0000-0000-0000-000000000000')
+
+--production KPIs
+SELECT
+    SUM(good_count)/(SUM(bad_count)+SUM(good_count))*100 as KPis
+INTO [out-case-study2]
+FROM [asa-case-study-industrial]
+WHERE  NOT (workorder_id='00000000-0000-0000-0000-000000000000')
+GROUP BY KPis, TumblingWindow(minute,15)
+
+
+
+--temperature max,min,avg in 15 min 
+SELECT
+    id_Of_Machine,
+    MAX(temperature) AS max_temperature,
+    MIN(temperature) AS min_temperature,
+    AVG(temperature) AS avg_temperature
+INTO [out-case-study3] 
+FROM [asa-case-study-industrial]
+GROUP BY id_Of_Machine, TumblingWindow(minute,5)
+
+
+---errors per machine
+
+--individual errors per machine in 30 min
+SELECT
+	id_Of_Machine,
+	COUNT(device_error) as error_count
+INTO [out-case-study4]
+FROM [asa-case-study-industrial]
+WHERE NOT(device_error=0)
+GROUP BY id_Of_Machine, error_count, TumblingWindow(minute,30)
+
+--situation when more than 3 erros with 15 min 
+
+SELECT id_Of_Machine, test.error_count
+INTO [out-case-study5]
+ FROM (SELECT 
+    id_Of_Machine, 
+    COUNT(*) AS error_count
+FROM [asa-case-study-industrial]
+WHERE device_error IS NOT NULL
+GROUP BY id_Of_Machine, TumblingWindow(minute,15)) AS test
+WHERE  test.error_count > 3
+
+
+
+
+
+

@@ -4,8 +4,7 @@ using Opc.UaFx.Client;
 using Opc.UaFx;
 using Newtonsoft.Json;
 using DeserializationClasses;
-using Opc.Ua;
-using System.Diagnostics.CodeAnalysis;
+
 
 internal class Program
 {
@@ -54,7 +53,7 @@ internal class Program
                 {
                     readTeleValues(teleValuesMachines, oldTeleValues,client,badCount, goodCount);
                     await device.sendEventMessage(prepTelemetryMessage(teleValuesMachines));
-                    await isValueChanged(oldTeleValues, teleValuesMachines, device,badCount,goodCount);
+                    await isValueChanged(teleValuesMachines, oldTeleValues, device,badCount,goodCount);
                     await Task.Delay(4000);
                 }
             }
@@ -77,7 +76,7 @@ internal class Program
                 {
                     goodC[i].Add(teleMachine.good_count);
                     badC[i].Add(teleMachine.bad_count);
-                    old[i] = teleMachine;
+                    old[i].workorder_id = teleMachine.workorder_id;
                 }
            
                 int sumGood = 0;
@@ -95,7 +94,7 @@ internal class Program
                     sumGood += good;
                 }
 
-                
+     
                 teleMachine.production_status = (int)client.ReadNode(teleMachine.id_Of_Machine + "/ProductionStatus").Value;
                 teleMachine.good_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/GoodCount").Value - sumGood;
                 teleMachine.bad_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/BadCount").Value - sumBad;
@@ -106,7 +105,7 @@ internal class Program
             }
         }
 
-       async Task isValueChanged(List<TeleValueMachine> old, List<TeleValueMachine> now, VirtualDevice device, List<List<int>> badC, List<List<int>> goodC)
+       async Task isValueChanged(List<TeleValueMachine> now, List<TeleValueMachine> old, VirtualDevice device, List<List<int>> badC, List<List<int>> goodC)
         {
             List<TeleValueMachine> toReport = new List<TeleValueMachine>();
             List<ErrorMessage> errorInfoToSend = new List<ErrorMessage>(); 
