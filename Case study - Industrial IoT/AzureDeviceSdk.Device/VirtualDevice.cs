@@ -41,7 +41,6 @@ namespace AzureDeviceSdk.Device
 
         private async Task<MethodResponse> EmergencyStop(MethodRequest methodRequest, object userContext)
         {
-
             ConfigJsonFile cofigFile = readConfigFile(); 
             var twin = await client.GetTwinAsync();
             Console.WriteLine($"\tZostała wywołana metoda o nazwie:{methodRequest.Name}");
@@ -80,7 +79,7 @@ namespace AzureDeviceSdk.Device
             var twin = await client.GetTwinAsync();
             string jsonStr = JsonConvert.SerializeObject(twin);
             DeviceTwin myDeserializedClass = JsonConvert.DeserializeObject<DeviceTwin>(jsonStr);
-            Console.WriteLine($"\tZostała wywołana metoda o nazwie:: {methodRequest.Name}");
+            Console.WriteLine($"\tZostała wywołana metoda o nazwie:{methodRequest.Name}");
             var opcClient = new OpcClient(cofigFile.opc_server_adress);
             opcClient.Connect();
             var node = opcClient.BrowseNode(OpcObjectTypes.ObjectsFolder);
@@ -104,8 +103,8 @@ namespace AzureDeviceSdk.Device
                     dateOfLastMaintenance[i] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
                 }
                 reportedProperties["DateOfLastMaintenance"] = dateOfLastMaintenance;
-                await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
                 Console.WriteLine("Wykonana została konserwacja dla wszystkich maszyn fabryki");
+                await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
             }
             await Task.Delay(1000);
             return new MethodResponse(0);
@@ -128,7 +127,7 @@ namespace AzureDeviceSdk.Device
                 result = opcClient.CallMethod(
                     teleMachineVales[payload.numberOfMachine-1].id_Of_Machine,
                     teleMachineVales[payload.numberOfMachine-1].id_Of_Machine + "/ResetErrorStatus");
-                Console.WriteLine("Flagi błędów zostały zresetowane dla maszyny o id:{0}", teleMachineVales[payload.numberOfMachine-1]); 
+                Console.WriteLine("Flagi błędów zostały zresetowane dla maszyny o id:{0}", teleMachineVales[payload.numberOfMachine-1].id_Of_Machine); 
             }
             else
             {
@@ -196,7 +195,7 @@ namespace AzureDeviceSdk.Device
                 i ++;
             }
         }
-        
+       
         public async Task InitializeHandlers()
         {
             await client.SetMethodDefaultHandlerAsync(DefaultServiceHandler, client);
@@ -205,7 +204,6 @@ namespace AzureDeviceSdk.Device
             await client.SetMethodHandlerAsync("MaintenanceDone", MaintenanceDone, client);
             await client.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertyChanged, client);
         }
-
 
         public async Task updateReportedProductionRate(List<TeleValueMachine> toReport)
         {
@@ -221,7 +219,6 @@ namespace AzureDeviceSdk.Device
                 int numberOfMachine = (int)Char.GetNumericValue(machine.id_Of_Machine[machine.id_Of_Machine.Length-1]);
                 newProductionRate[numberOfMachine-1] = machine.production_rate;
             }
-
             reportedProperties["ProductionRate"] = newProductionRate;
             await client.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
             Console.WriteLine("reported twin updated - production rate");
@@ -253,6 +250,7 @@ namespace AzureDeviceSdk.Device
                 else if (machine.device_error == 8)
                     newErrorFlags[numberOfMachine - 1] = "1000";
 
+                if(machine.device_error!=0)
                 newLastErrorDate[numberOfMachine-1] = DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss");
             }
             reportedProperties["DevicesErrors"] = newErrorFlags;
@@ -261,7 +259,6 @@ namespace AzureDeviceSdk.Device
             Console.WriteLine("reported twin updated - error flags i date of last error oraz wiadomosc o błędzie została wyslana");
             await sendEventMessage(evenMessageError);
         }
-
 
         //odczytanie id wszystkich aktywnych maszyn 
         public static void findMachinesId(OpcNodeInfo node, List<TeleValueMachine> teleValuesMachines, int level = 0)
@@ -280,10 +277,8 @@ namespace AzureDeviceSdk.Device
             }
         }
 
-
         public static ConfigJsonFile readConfigFile()
         {
-     
             StreamReader r = new StreamReader("..\\..\\..\\..\\configurationFile.json");
             string configFileContent = r.ReadToEnd();
             ConfigJsonFile configJsonFIile = JsonConvert.DeserializeObject<ConfigJsonFile>(configFileContent);

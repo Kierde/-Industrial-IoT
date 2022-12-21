@@ -10,7 +10,6 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-
         ConfigJsonFile cofigFile= VirtualDevice.readConfigFile();
         List<TeleValueMachine> teleValuesMachines = new List<TeleValueMachine>();
         List<TeleValueMachine> oldTeleValues = new List<TeleValueMachine>();
@@ -33,7 +32,6 @@ internal class Program
                     goodCount.Add(good);
                     badCount.Add(bad); 
                 }
-
                 using var deviceClient = DeviceClient.CreateFromConnectionString(cofigFile.iot_connection_string, TransportType.Mqtt);
                 await deviceClient.OpenAsync();
                 var device = new VirtualDevice(deviceClient);
@@ -41,9 +39,9 @@ internal class Program
                 await device.InitializeHandlers();
                 Console.WriteLine("Inicjalizacja udana");
                 await device.presetDeviceTwinForUsage(client, teleValuesMachines);
-                readTeleValues(oldTeleValues, oldTeleValues,client, badCount,goodCount);
-
+                readTeleValues(oldTeleValues, oldTeleValues, client, badCount, goodCount);
                 Console.WriteLine("Obecnie działające linie produkcyjne mają numery id:");
+
                 foreach (TeleValueMachine teleValueMachine in teleValuesMachines) 
                 {
                     Console.WriteLine(teleValueMachine.id_Of_Machine); 
@@ -63,12 +61,10 @@ internal class Program
             Console.WriteLine(e.Message);
         }
 
-
         static void readTeleValues(List<TeleValueMachine> teleValueMachines,List<TeleValueMachine> old,OpcClient client, List<List<int>> badC, List<List<int>> goodC)
         {
             int i = 0;
          
-
             foreach (TeleValueMachine teleMachine in teleValueMachines)
             {
                 teleMachine.workorder_id = (string)client.ReadNode(teleMachine.id_Of_Machine + "/WorkorderId").Value;
@@ -78,7 +74,6 @@ internal class Program
                     badC[i].Add(teleMachine.bad_count);
                     old[i].workorder_id = teleMachine.workorder_id;
                 }
-           
                 int sumGood = 0;
                 int sumBad = 0;
 
@@ -89,12 +84,11 @@ internal class Program
                 }
 
                 if (badC.Count != 0 && badC[i].Count != 0)
+
                 foreach (int good in goodC[i])
                 {
                     sumGood += good;
                 }
-
-     
                 teleMachine.production_status = (int)client.ReadNode(teleMachine.id_Of_Machine + "/ProductionStatus").Value;
                 teleMachine.good_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/GoodCount").Value - sumGood;
                 teleMachine.bad_count = (int)(long)client.ReadNode(teleMachine.id_Of_Machine + "/BadCount").Value - sumBad;
